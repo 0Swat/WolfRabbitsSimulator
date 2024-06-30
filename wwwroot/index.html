@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wolf and Rabbits Simulation</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wolf and Rabbits Simulation</h1>
+    <canvas id="simulationCanvas" width="500" height="500"></canvas>
+
+    <script>
+        let ctx;
+        const canvas = document.getElementById('simulationCanvas');
+        if (canvas) {
+            ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error('Nie można uzyskać kontekstu 2D dla canvas');
+            }
+        } else {
+            console.error('Nie znaleziono elementu canvas');
+        }
+
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const socket = new WebSocket(`${protocol}//${window.location.host}/ws`);
+
+        socket.onopen = function (e) {
+            console.log("WebSocket połączenie nawiązane");
+        };
+
+        socket.onerror = function (error) {
+            console.error("Błąd WebSocket:", error);
+        };
+
+        socket.onclose = function (event) {
+            console.log("WebSocket połączenie zamknięte", event);
+        };
+
+        socket.onmessage = (event) => {
+            console.log("Otrzymano dane:", event.data);
+            try {
+                const state = JSON.parse(event.data);
+                if (ctx) {
+                    drawSimulation(state);
+                } else {
+                    console.error('Kontekst canvas nie jest dostępny');
+                }
+            } catch (error) {
+                console.error('Błąd podczas przetwarzania danych:', error);
+            }
+        };
+
+        function drawSimulation(state) {
+            if (!ctx) {
+                console.error('Kontekst canvas nie jest dostępny');
+                return;
+            }
+            console.log("Rysowanie symulacji", state);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Rysowanie wilka
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(state.Wolf.X * 5, state.Wolf.Y * 5, 7, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Rysowanie zajęcy
+            ctx.fillStyle = 'blue';
+            state.Rabbits.forEach(rabbit => {
+                ctx.beginPath();
+                ctx.arc(rabbit.X * 5, rabbit.Y * 5, 5, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+        }
+
+        document.addEventListener('keydown', function (event) {
+            let direction;
+            switch (event.key) {
+                case 'ArrowUp':
+                    direction = 'move:up';
+                    break;
+                case 'ArrowDown':
+                    direction = 'move:down';
+                    break;
+                case 'ArrowLeft':
+                    direction = 'move:left';
+                    break;
+                case 'ArrowRight':
+                    direction = 'move:right';
+                    break;
+            }
+            if (direction) {
+                socket.send(direction);
+            }
+        });
+    </script>
+</body>
+</html>
