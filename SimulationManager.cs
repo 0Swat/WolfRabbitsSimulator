@@ -15,6 +15,8 @@ public class SimulationManager
     private Timer simulationTimer;
     private List<WebSocket> connectedClients = new List<WebSocket>();
 
+    private int caughtRabbitsCount = 0;
+
     public SimulationManager()
     {
         InitializeSimulation();
@@ -34,13 +36,13 @@ public class SimulationManager
     {
         lock (lockObject)
         {
-            // Usuniêto losowy ruch wilka
             foreach (var rabbit in rabbits.ToList())
             {
                 rabbit.Move();
                 if (Math.Abs(wolf.X - rabbit.X) <= 1 && Math.Abs(wolf.Y - rabbit.Y) <= 1)
                 {
                     rabbits.Remove(rabbit);
+                    caughtRabbitsCount++;
                 }
             }
         }
@@ -53,7 +55,8 @@ public class SimulationManager
         var state = new
         {
             Wolf = new { wolf.X, wolf.Y },
-            Rabbits = rabbits.Select(r => new { r.X, r.Y }).ToList()
+            Rabbits = rabbits.Select(r => new { r.X, r.Y }).ToList(),
+            CaughtRabbitsCount = caughtRabbitsCount
         };
 
         var json = JsonSerializer.Serialize(state);

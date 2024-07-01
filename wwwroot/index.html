@@ -1,3 +1,5 @@
+<!-- index.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +15,7 @@
 <body>
     <h1>Wolf and Rabbits Simulation</h1>
     <canvas id="simulationCanvas" width="500" height="500"></canvas>
+    <p>Caught rabbits: <span id="caughtRabbitsCount">0</span></p>
 
     <script>
         let ctx;
@@ -47,6 +50,7 @@
                 const state = JSON.parse(event.data);
                 if (ctx) {
                     drawSimulation(state);
+                    updateCaughtRabbitsCount(state.CaughtRabbitsCount);
                 } else {
                     console.error('Kontekst canvas nie jest dostępny');
                 }
@@ -76,6 +80,10 @@
                 ctx.arc(rabbit.X * 5, rabbit.Y * 5, 5, 0, 2 * Math.PI);
                 ctx.fill();
             });
+        }
+
+        function updateCaughtRabbitsCount(count) {
+            document.getElementById('caughtRabbitsCount').textContent = count;
         }
 
         document.addEventListener('keydown', function (event) {
