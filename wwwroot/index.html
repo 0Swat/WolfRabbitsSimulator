@@ -5,17 +5,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wolf and Rabbits Simulation</title>
+    <title>Symulator wilka i zajęcy</title>
     <style>
         canvas {
             border: 1px solid black;
         }
+
+        #red_p {
+            font-size: 20px;
+            color: red;
+        }
+
+        #blue_p {
+            font-size: 20px;
+            color: blue;
+        }
+
+        #normal_p {
+            font-size: 20px;
+        }
+
+        #rabbits_info {
+            font-size: 24px;
+        }
+
+        #congratulations {
+            display: none;
+            font-size: 24px;
+            color: green;
+        }
+
+        #restartButton {
+            display: none;
+            font-size: 20px;
+            padding: 10px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>Wolf and Rabbits Simulation</h1>
-    <canvas id="simulationCanvas" width="500" height="500"></canvas>
-    <p>Caught rabbits: <span id="caughtRabbitsCount">0</span></p>
+    <center>
+        <h1>Symulator wilka i zajęcy</h1>
+        <p id="red_p">Czerwona kropa - wilk</p>
+        <p id="blue_p">Niebieska kropa - zając</p>
+        <p id="normal_p">Używając strzałek zbierz wszyskie zające!</p>
+        <canvas id="simulationCanvas" width="500" height="500"></canvas>
+        <p id="rabbits_info">Zebrane zające: <span id="caughtRabbitsCount">0</span></p>
+        <p id="congratulations">Gratulacje, zebrałeś wszystkie zające!</p>
+        <button id="restartButton" onclick="restartGame()">Restartuj grę</button>
+    </center>
+    
 
     <script>
         let ctx;
@@ -51,6 +90,9 @@
                 if (ctx) {
                     drawSimulation(state);
                     updateCaughtRabbitsCount(state.CaughtRabbitsCount);
+                    if (state.AllRabbitsCaught) {
+                        displayCongratulationsMessage();
+                    }
                 } else {
                     console.error('Kontekst canvas nie jest dostępny');
                 }
@@ -84,6 +126,17 @@
 
         function updateCaughtRabbitsCount(count) {
             document.getElementById('caughtRabbitsCount').textContent = count;
+        }
+
+        function displayCongratulationsMessage() {
+            document.getElementById('congratulations').style.display = 'block';
+            document.getElementById('restartButton').style.display = 'block';
+        }
+
+        function restartGame() {
+            document.getElementById('congratulations').style.display = 'none';
+            document.getElementById('restartButton').style.display = 'none';
+            socket.send('reset');
         }
 
         document.addEventListener('keydown', function (event) {

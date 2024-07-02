@@ -56,7 +56,8 @@ public class SimulationManager
         {
             Wolf = new { wolf.X, wolf.Y },
             Rabbits = rabbits.Select(r => new { r.X, r.Y }).ToList(),
-            CaughtRabbitsCount = caughtRabbitsCount
+            CaughtRabbitsCount = caughtRabbitsCount,
+            AllRabbitsCaught = rabbits.Count == 0 // Dodane pole
         };
 
         var json = JsonSerializer.Serialize(state);
@@ -94,6 +95,10 @@ public class SimulationManager
                         var direction = command.Split(':')[1];
                         MoveWolf(direction);
                     }
+                    else if (command == "reset")
+                    {
+                        ResetGame();
+                    }
                 }
             }
         }
@@ -103,6 +108,7 @@ public class SimulationManager
             connectedClients.Remove(webSocket);
         }
     }
+
 
     public void MoveWolf(string direction)
     {
@@ -124,6 +130,17 @@ public class SimulationManager
                     break;
             }
 
+            BroadcastSimulationState();
+        }
+    }
+
+    public void ResetGame()
+    {
+        lock (lockObject)
+        {
+            rabbits.Clear();
+            caughtRabbitsCount = 0;
+            InitializeSimulation();
             BroadcastSimulationState();
         }
     }

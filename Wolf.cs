@@ -17,21 +17,21 @@ public class Wolf : Animal
 
     public void MoveUp()
     {
-        Y = Math.Max(0, Y - 1);
+        Y = Math.Max(1, Y - 1);
     }
 
     public void MoveDown()
     {
-        Y = Math.Min(99, Y + 1);
+        Y = Math.Min(98, Y + 1);
     }
 
     public void MoveLeft()
     {
-        X = Math.Max(0, X - 1);
+        X = Math.Max(1, X - 1);
     }
 
     public void MoveRight()
     {
-        X = Math.Min(99, X + 1);
+        X = Math.Min(98, X + 1);
     }
 }
