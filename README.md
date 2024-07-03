@@ -1,5 +1,9 @@
 # Wolf and Rabbits - Hunting Simulator
 
+![ezgif-5-0b343c4383](https://github.com/0Swat/WolfRabbitsSimulator/assets/94014791/644c02b5-a6e8-463a-9128-00ca9d453830)
+
+
+
 ## Overview
 
 Wolf and Rabbits is an interactive simulation game created with ASP.NET Core and JavaScript. The project demonstrates the use of WebSocket technology for real-time communication between the server and client, as well as the implementation of thread synchronization mechanisms in a multi-threaded environment.
