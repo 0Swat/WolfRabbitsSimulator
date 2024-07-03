@@ -1,30 +1,27 @@
-// SimulationManager.cs
-using System.Collections.Generic;
-using System;
 using System.Net.WebSockets;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Threading;
+using System.Text;
 
 public class SimulationManager
 {
+    // Inicjalizacja pól klasy
     private List<Rabbit> rabbits = new List<Rabbit>();
     private Wolf wolf;
     private object lockObject = new object();
     private Timer simulationTimer;
     private List<WebSocket> connectedClients = new List<WebSocket>();
-
     private int caughtRabbitsCount = 0;
 
     public SimulationManager()
     {
+        // Inicjalizacja symulacji i uruchomienie timera
         InitializeSimulation();
         simulationTimer = new Timer(RunSimulation, null, 0, 320);
     }
 
     private void InitializeSimulation()
     {
+        // Tworzenie wilka i zajêcy
         wolf = new Wolf(50, 50);
         for (int i = 0; i < 10; i++)
         {
@@ -36,6 +33,7 @@ public class SimulationManager
     {
         lock (lockObject)
         {
+            // Przesuwanie zajêcy i sprawdzanie kolizji z wilkiem
             foreach (var rabbit in rabbits.ToList())
             {
                 rabbit.Move();
@@ -46,23 +44,22 @@ public class SimulationManager
                 }
             }
         }
-
+        // Aktualizacja stanu dla klientów
         BroadcastSimulationState();
     }
 
     private void BroadcastSimulationState()
     {
+        // Tworzenie obiektu stanu i wysy³anie do klientów
         var state = new
         {
             Wolf = new { wolf.X, wolf.Y },
             Rabbits = rabbits.Select(r => new { r.X, r.Y }).ToList(),
             CaughtRabbitsCount = caughtRabbitsCount,
-            AllRabbitsCaught = rabbits.Count == 0 // Dodane pole
+            AllRabbitsCaught = rabbits.Count == 0
         };
-
         var json = JsonSerializer.Serialize(state);
         var buffer = Encoding.UTF8.GetBytes(json);
-
         foreach (var client in connectedClients.ToList())
         {
             try
@@ -78,9 +75,8 @@ public class SimulationManager
 
     public async Task HandleWebSocketConnection(WebSocket webSocket)
     {
-        Console.WriteLine("Nowe po³¹czenie WebSocket");
+        // Obs³uga nowego po³¹czenia WebSocket
         connectedClients.Add(webSocket);
-
         try
         {
             var buffer = new byte[1024 * 4];
@@ -104,38 +100,29 @@ public class SimulationManager
         }
         finally
         {
-            Console.WriteLine("Po³¹czenie WebSocket zamkniête");
             connectedClients.Remove(webSocket);
         }
     }
 
-
     public void MoveWolf(string direction)
     {
+        // Przesuwanie wilka w odpowiednim kierunku
         lock (lockObject)
         {
             switch (direction)
             {
-                case "up":
-                    wolf.MoveUp();
-                    break;
-                case "down":
-                    wolf.MoveDown();
-                    break;
-                case "left":
-                    wolf.MoveLeft();
-                    break;
-                case "right":
-                    wolf.MoveRight();
-                    break;
+                case "up": wolf.MoveUp(); break;
+                case "down": wolf.MoveDown(); break;
+                case "left": wolf.MoveLeft(); break;
+                case "right": wolf.MoveRight(); break;
             }
-
             BroadcastSimulationState();
         }
     }
 
     public void ResetGame()
     {
+        // Resetowanie stanu gry
         lock (lockObject)
         {
             rabbits.Clear();

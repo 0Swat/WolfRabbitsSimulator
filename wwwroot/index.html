@@ -1,5 +1,3 @@
-<!-- index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Symulator wilka i zajęcy</title>
     <style>
+        /* Style dla elementów canvas */
         canvas {
             border: 1px solid black;
         }
 
+        /* Style dla różnych typów paragrafów */
         #red_p {
             font-size: 20px;
             color: red;
@@ -25,16 +25,19 @@
             font-size: 20px;
         }
 
+        /* Style dla informacji o zebranych zającach */
         #rabbits_info {
             font-size: 24px;
         }
 
+        /* Style dla wiadomości gratulacyjnej (początkowo ukryta) */
         #congratulations {
             display: none;
             font-size: 24px;
             color: green;
         }
 
+        /* Style dla przycisku restartu (początkowo ukryty) */
         #restartButton {
             display: none;
             font-size: 20px;
@@ -45,18 +48,24 @@
 </head>
 <body>
     <center>
+        <!-- Nagłówek i instrukcje gry -->
         <h1>Symulator wilka i zajęcy</h1>
         <p id="red_p">Czerwona kropa - wilk</p>
         <p id="blue_p">Niebieska kropa - zając</p>
         <p id="normal_p">Używając strzałek zbierz wszyskie zające!</p>
+
+        <!-- Obszar gry (canvas) -->
         <canvas id="simulationCanvas" width="500" height="500"></canvas>
+
+        <!-- Informacje o grze -->
         <p id="rabbits_info">Zebrane zające: <span id="caughtRabbitsCount">0</span></p>
         <p id="congratulations">Gratulacje, zebrałeś wszystkie zające!</p>
         <button id="restartButton" onclick="restartGame()">Restartuj grę</button>
     </center>
-    
+
 
     <script>
+        // Inicjalizacja kontekstu canvas
         let ctx;
         const canvas = document.getElementById('simulationCanvas');
         if (canvas) {
@@ -68,9 +77,11 @@
             console.error('Nie znaleziono elementu canvas');
         }
 
+        // Inicjalizacja WebSocket połączenia
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const socket = new WebSocket(`${protocol}//${window.location.host}/ws`);
 
+        // Obsługa zdarzeń WebSocket
         socket.onopen = function (e) {
             console.log("WebSocket połączenie nawiązane");
         };
@@ -83,6 +94,7 @@
             console.log("WebSocket połączenie zamknięte", event);
         };
 
+        // Obsługa otrzymanych danych
         socket.onmessage = (event) => {
             console.log("Otrzymano dane:", event.data);
             try {
@@ -101,6 +113,7 @@
             }
         };
 
+        // Funkcja rysująca stan symulacji na canvas
         function drawSimulation(state) {
             if (!ctx) {
                 console.error('Kontekst canvas nie jest dostępny');
@@ -124,36 +137,32 @@
             });
         }
 
+        // Aktualizacja licznika złapanych zajęcy
         function updateCaughtRabbitsCount(count) {
             document.getElementById('caughtRabbitsCount').textContent = count;
         }
 
+        // Wyświetlenie wiadomości gratulacyjnej
         function displayCongratulationsMessage() {
             document.getElementById('congratulations').style.display = 'block';
             document.getElementById('restartButton').style.display = 'block';
         }
 
+        // Funkcja restartująca grę
         function restartGame() {
             document.getElementById('congratulations').style.display = 'none';
             document.getElementById('restartButton').style.display = 'none';
             socket.send('reset');
         }
 
+        // Nasłuchiwanie naciśnięć klawiszy strzałek
         document.addEventListener('keydown', function (event) {
             let direction;
             switch (event.key) {
-                case 'ArrowUp':
-                    direction = 'move:up';
-                    break;
-                case 'ArrowDown':
-                    direction = 'move:down';
-                    break;
-                case 'ArrowLeft':
-                    direction = 'move:left';
-                    break;
-                case 'ArrowRight':
-                    direction = 'move:right';
-                    break;
+                case 'ArrowUp': direction = 'move:up'; break;
+                case 'ArrowDown': direction = 'move:down'; break;
+                case 'ArrowLeft': direction = 'move:left'; break;
+                case 'ArrowRight': direction = 'move:right'; break;
             }
             if (direction) {
                 socket.send(direction);
